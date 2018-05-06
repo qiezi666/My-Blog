@@ -1,7 +1,10 @@
 package com.my.blog.website.interceptor;
 
+import com.github.pagehelper.PageInfo;
+import com.my.blog.website.model.Vo.ContentVo;
 import com.my.blog.website.model.Vo.OptionVo;
 import com.my.blog.website.model.Vo.UserVo;
+import com.my.blog.website.service.IContentService;
 import com.my.blog.website.service.IOptionService;
 import com.my.blog.website.service.IUserService;
 import com.my.blog.website.utils.*;
@@ -40,6 +43,9 @@ public class BaseInterceptor implements HandlerInterceptor {
     @Resource
     private AdminCommons adminCommons;
 
+    @Resource
+    private IContentService contentService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
         String uri = request.getRequestURI();
@@ -75,6 +81,10 @@ public class BaseInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
         OptionVo ov = optionService.getOptionByName("site_record");
+
+        PageInfo<ContentVo> articles = contentService.getContents(1, 8);
+        commons.setRecentArticles(articles.getList());
+        commons.setContentService(contentService);
         httpServletRequest.setAttribute("commons", commons);//一些工具类和公共方法
         httpServletRequest.setAttribute("option", ov);
         httpServletRequest.setAttribute("adminCommons", adminCommons);

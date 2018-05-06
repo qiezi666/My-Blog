@@ -4,13 +4,18 @@ package com.my.blog.website.utils;
 import com.github.pagehelper.PageInfo;
 import com.my.blog.website.constant.WebConst;
 import com.my.blog.website.model.Vo.ContentVo;
+import com.my.blog.website.service.IContentService;
 import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +27,13 @@ import java.util.regex.Pattern;
  */
 @Component
 public final class Commons {
+
+
+    public static List<ContentVo> recentArticles = new ArrayList<>();
+
+
+    private static IContentService contentService;
+
 
     public static String THEME = "themes/default";
 
@@ -41,7 +53,8 @@ public final class Commons {
      * @return
      */
     public static String site_url() {
-        return site_url("");
+        //return site_url("");
+        return "/";
     }
 
     /**
@@ -132,12 +145,12 @@ public final class Commons {
      * @return
      */
     public static String gravatar(String email) {
-        String avatarUrl = "https://github.com/identicons/";
+        String avatarUrl = "https://cn.gravatar.com/avatar";
         if (StringUtils.isBlank(email)) {
-            email = "user@hanshuai.xin";
+            return avatarUrl;
         }
         String hash = TaleUtils.MD5encode(email.trim().toLowerCase());
-        return avatarUrl + hash + ".png";
+        return avatarUrl + "/" + hash;
     }
 
     /**
@@ -244,15 +257,17 @@ public final class Commons {
         int pos = value.indexOf("<!--more-->");
         if (pos != -1) {
             String html = value.substring(0, pos);
-            return TaleUtils.htmlToText(TaleUtils.mdToHtml(html));
+            return TaleUtils.htmlToText(TaleUtils.mdToHtml(html))+"...";
         } else {
             String text = TaleUtils.htmlToText(TaleUtils.mdToHtml(value));
             if (text.length() > len) {
-                return text.substring(0, len);
+                return text.substring(0, len)+"...";
             }
-            return text;
+            return text+"...";
         }
     }
+
+
 
     /**
      * 显示文章内容，转换markdown为html
@@ -342,6 +357,27 @@ public final class Commons {
         map.put("github", WebConst.initConfig.get(prefix + "github"));
         map.put("twitter", WebConst.initConfig.get(prefix + "twitter"));
         return map;
+
     }
 
+
+    public static List<ContentVo> getRecentArticles() {
+        return recentArticles;
+    }
+
+    public static void setRecentArticles(List<ContentVo> recentArticles) {
+        Commons.recentArticles = recentArticles;
+    }
+
+
+    public static List<ContentVo> getRecentArticles(int limit) {
+        PageInfo<ContentVo> articles = contentService.getContents(1, limit);
+
+        return articles.getList();
+    }
+
+
+    public static void setContentService(IContentService cs) {
+        contentService = cs;
+    }
 }

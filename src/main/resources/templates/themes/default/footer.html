@@ -35,7 +35,7 @@
             <div class="meta-item meta-copyright">
                 <div class="meta-copyright-info">
                     <div class="info-text">
-                        <a href="http://blog.qiezi666.cn" style="display: block;margin: 0 auto;" class="info-logo">
+                        <a th:href="@{${commons.site_url()}}" style="display: block;margin: 0 auto;" class="info-logo">
                             <img style="display: block;margin: 0 auto;" th:src="@{/user/img/logo.png}"
                                  th:alt="${commons.site_title()}"/>
                         </a>
@@ -50,6 +50,17 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="meta-item meta-posts">
+                <h3 class="meta-title">最新文章</h3>
+
+                <li th:each="article: ${commons.getRecentArticles(4)}">
+                    <a th:href="${commons.permalink(article)}"
+                       th:text="${article.title}"></a>
+                </li>
+            </div>
+
 
         </div>
     </div>
